@@ -3,8 +3,10 @@ package com.permissionx.goodnews
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import dagger.hilt.android.HiltAndroidApp
 import kotlin.coroutines.CoroutineContext
 //获取全局的context
+@HiltAndroidApp
 class App:Application() {
 
     companion object{
