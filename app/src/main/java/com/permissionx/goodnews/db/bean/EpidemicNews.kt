@@ -1,4 +1,7 @@
-package com.permissionx.goodnews.bean
+package com.permissionx.goodnews.db.bean
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 data class EpidemicNews(val msg: String = "",
                         val result: Result,
@@ -6,7 +9,9 @@ data class EpidemicNews(val msg: String = "",
 
 data class Result(val list: List<ListItem>?)
 
-data class ListItem(val digest: String = "",
+@Entity
+data class ListItem(@PrimaryKey val id:Int = 0,
+                    val digest: String = "",
                     val source: String = "",
                     val mtime: String = "",
                     val title: String = "",

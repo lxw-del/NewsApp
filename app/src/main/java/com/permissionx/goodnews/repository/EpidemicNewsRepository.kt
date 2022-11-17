@@ -1,5 +1,6 @@
 package com.permissionx.goodnews.repository
 
+import com.permissionx.goodnews.App
 import com.permissionx.goodnews.network.NetworkRequest
 import com.permissionx.goodnews.utils.Constant
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -15,6 +16,8 @@ class EpidemicNewsRepository @Inject constructor():BaseRepository() {
     fun getEpidemicNews() = fire(Dispatchers.IO){
         val epidemicNews = NetworkRequest.getEpidemicNews()
         if (epidemicNews.code == Constant.CODE){
+            App.db.listItemDao().deleteAll()
+            App.db.listItemDao().insertAll(epidemicNews.result.list)
             Result.success(epidemicNews)
         }else{
             Result.failure(java.lang.RuntimeException("getNews response code is ${epidemicNews.code}" +

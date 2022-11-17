@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import com.permissionx.goodnews.bean.ListItem
+import com.permissionx.goodnews.db.bean.ListItem
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import com.permissionx.goodnews.ui.theme.GoodNewsTheme
 import com.permissionx.goodnews.utils.ToastUtils.showToast
@@ -66,14 +66,16 @@ fun Greeting(name: String) {
 @Composable
 fun InitData(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
 
-    val dataState = viewModel.result.observeAsState()
+   /* val dataState = viewModel.result.observeAsState()
 
     dataState.value?.let {
         val orNull = it.getOrNull()
         if (orNull != null){
             orNull.result.list?.let { it1 -> MainScreen(it1) }
         }
-    }
+    }*/
+    
+    MainScreen(list = App.db.listItemDao().getAll())
 
 }
 

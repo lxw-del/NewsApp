@@ -1,6 +1,6 @@
 package com.permissionx.goodnews.network
 
-import com.permissionx.goodnews.bean.EpidemicNews
+import com.permissionx.goodnews.db.bean.EpidemicNews
 import com.permissionx.goodnews.utils.Constant
 import retrofit2.Call
 import retrofit2.http.GET
