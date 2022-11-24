@@ -1,14 +1,18 @@
 package com.permissionx.goodnews.db
 
 import android.content.Context
+import android.media.midi.MidiReceiver
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.permissionx.goodnews.db.bean.EpidemicNews
 import com.permissionx.goodnews.db.bean.ListItem
 import com.permissionx.goodnews.db.dao.NewsItemDao
 
 
-@Database(entities = [ListItem::class], version = 1, exportSchema = false)
+@Database(entities = [EpidemicNews::class], version = 2, exportSchema = false)
 abstract class AppDatabase:RoomDatabase() {
     abstract fun listItemDao():NewsItemDao
 
@@ -21,11 +25,17 @@ abstract class AppDatabase:RoomDatabase() {
         private const val DATABASE_NAME = "good_news.db"
 
 
+        private val MIGRATION_1_2:Migration = object :Migration(1,2){
+            override fun migrate(database: SupportSQLiteDatabase) {
+
+            }
+        }
+
         fun getInstance(context: Context):AppDatabase{
             //instance 初始化，在同步代码块中执行 also是不可改变it的，只能将值赋给别人或者打印。
             return instance ?: synchronized(this){
                 instance ?: Room.databaseBuilder(context,AppDatabase::class.java, DATABASE_NAME)
-                    .allowMainThreadQueries()
+                    .addMigrations(MIGRATION_1_2)
                     .build().also { instance = it }
             }
         }

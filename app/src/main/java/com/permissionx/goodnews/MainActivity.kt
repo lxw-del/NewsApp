@@ -66,16 +66,13 @@ fun Greeting(name: String) {
 @Composable
 fun InitData(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
 
-   /* val dataState = viewModel.result.observeAsState()
+   val dataState = viewModel.result.observeAsState()
 
-    dataState.value?.let {
-        val orNull = it.getOrNull()
-        if (orNull != null){
-            orNull.result.list?.let { it1 -> MainScreen(it1) }
-        }
-    }*/
+    dataState.value?.let { result ->
+        result.getOrNull()?.result?.list?.let { MainScreen(list = it) }
+}
     
-    MainScreen(list = App.db.listItemDao().getAll())
+    //MainScreen(list = App.db.listItemDao().getAll())
 
 }
 

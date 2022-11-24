@@ -2,15 +2,22 @@ package com.permissionx.goodnews.db.bean
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
+import com.permissionx.goodnews.db.converter.ResultConverter
 
-data class EpidemicNews(val msg: String = "",
-                        val result: Result,
-                        val code: Int = 0)
-
-data class Result(val list: List<ListItem>?)
-
+@TypeConverters(ResultConverter::class)
 @Entity
-data class ListItem(@PrimaryKey val id:Int = 0,
+data class EpidemicNews(
+                        @PrimaryKey var id:Int = 0,
+                        var msg: String = "",
+                        var result: Result,
+                        var code: Int = 0)
+
+data class Result(var list: List<ListItem>?)
+
+
+data class ListItem(val id:Int = 0,
                     val digest: String = "",
                     val source: String = "",
                     val mtime: String = "",

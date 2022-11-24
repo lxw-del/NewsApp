@@ -1,8 +1,13 @@
 package com.permissionx.goodnews.repository
 
+import android.util.Log
 import com.permissionx.goodnews.App
+import com.permissionx.goodnews.db.bean.EpidemicNews
+import com.permissionx.goodnews.db.bean.ListItem
 import com.permissionx.goodnews.network.NetworkRequest
 import com.permissionx.goodnews.utils.Constant
+import com.permissionx.goodnews.utils.EasyDataStore
+import com.permissionx.goodnews.utils.EasyDate
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -13,15 +18,42 @@ import javax.inject.Inject
 @ViewModelScoped
 class EpidemicNewsRepository @Inject constructor():BaseRepository() {
 
-    fun getEpidemicNews() = fire(Dispatchers.IO){
-        val epidemicNews = NetworkRequest.getEpidemicNews()
-        if (epidemicNews.code == Constant.CODE){
-            App.db.listItemDao().deleteAll()
-            App.db.listItemDao().insertAll(epidemicNews.result.list)
-            Result.success(epidemicNews)
-        }else{
-            Result.failure(java.lang.RuntimeException("getNews response code is ${epidemicNews.code}" +
-                    "msg is ${epidemicNews.msg}"))
-        }
+    private val TAG = "EpidemicNewsRepository"
+
+    companion object{
+        lateinit var epidemicNews: EpidemicNews
     }
+
+    fun getEpidemicNews() = fire(Dispatchers.IO){
+       //判断今天是否是第一次请求网络
+        if(EasyDate.timestamp <= EasyDataStore.getData(Constant.REQUEST_TIMESTAMP,1649049670500)){
+           //当前时间未超过次日0点，从本地获取数据库
+            Log.d(TAG, "getEpidemicNews: 从数据库中获取")
+            epidemicNews = getLocalForNews()
+            //Log.d(TAG, "Database data0 is ${App.db.listItemDao().getAll()[0].digest}")
+       }else{
+            Log.d(TAG, "getEpidemicNews: 从网络中获取")
+            epidemicNews = NetworkRequest.getEpidemicNews()
+            Log.d(TAG, "getEpidemicNews: ${epidemicNews.result.list?.get(0)?.digest}")
+            //保存到本地数据库
+            saveNews(epidemicNews)
+        }
+        Log.d(TAG, " code is  ${epidemicNews.code}")
+        if (epidemicNews.code == Constant.CODE) Result.success(epidemicNews)
+        else Result.failure(java.lang.RuntimeException("getNews response code is ${epidemicNews.code} msg is ${epidemicNews.msg}"))
+    }
+
+    //保存到本地数据库
+    private suspend fun saveNews(epidemicNews: EpidemicNews){
+        Log.d(TAG, "saveNews: 保存到本地数据库 ${epidemicNews.result.list?.get(0)?.digest}")
+        EasyDataStore.putData(Constant.REQUEST_TIMESTAMP,EasyDate.getMillisNextEarlyMorning())
+        //App.db.listItemDao().deleteAll()
+        //App.db.listItemDao().insertAll(epidemicNews.result.list)
+        App.db.listItemDao().insert(epidemicNews.apply { id = 1 })
+    }
+
+    //从本地数据库中加载
+    private suspend fun getLocalForNews() = App.db.listItemDao().getNews()
+
+
 }

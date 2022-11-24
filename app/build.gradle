@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace 'com.permissionx.goodnews'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.permissionx.goodnews"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -54,6 +54,7 @@ dependencies {
 
 
     //room
+    implementation 'androidx.room:room-ktx:2.4.3'
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
@@ -91,8 +92,8 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
 
     //DataStore
-    implementation 'androidx.datastore:datastore-preferences:1.0.0'
-    implementation 'androidx.datastore:datastore-preferences-core:1.0.0'
+    implementation "androidx.datastore:datastore-preferences:1.1.0-alpha01"
+    implementation "androidx.datastore:datastore-preferences-core:1.1.0-alpha01"
 
 
 }

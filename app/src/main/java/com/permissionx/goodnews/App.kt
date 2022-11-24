@@ -15,11 +15,15 @@ class App:Application() {
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context
         lateinit var db: AppDatabase
+
+        @SuppressLint("StaticFieldLeak")
+        lateinit var instance:App
     }
 
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
         db = AppDatabase.getInstance(context)
+        instance = this
     }
 }
