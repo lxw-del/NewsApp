@@ -3,7 +3,6 @@ package com.permissionx.goodnews.repository
 import android.util.Log
 import com.permissionx.goodnews.App
 import com.permissionx.goodnews.db.bean.EpidemicNews
-import com.permissionx.goodnews.db.bean.ListItem
 import com.permissionx.goodnews.network.NetworkRequest
 import com.permissionx.goodnews.utils.Constant
 import com.permissionx.goodnews.utils.EasyDataStore
@@ -34,7 +33,7 @@ class EpidemicNewsRepository @Inject constructor():BaseRepository() {
        }else{
             Log.d(TAG, "getEpidemicNews: 从网络中获取")
             epidemicNews = NetworkRequest.getEpidemicNews()
-            Log.d(TAG, "getEpidemicNews: ${epidemicNews.result.list?.get(0)?.digest}")
+            Log.d(TAG, "getEpidemicNews: ${epidemicNews.result.news?.get(0)?.summary}")
             //保存到本地数据库
             saveNews(epidemicNews)
         }
@@ -45,7 +44,7 @@ class EpidemicNewsRepository @Inject constructor():BaseRepository() {
 
     //保存到本地数据库
     private suspend fun saveNews(epidemicNews: EpidemicNews){
-        Log.d(TAG, "saveNews: 保存到本地数据库 ${epidemicNews.result.list?.get(0)?.digest}")
+        Log.d(TAG, "saveNews: 保存到本地数据库 ${epidemicNews.result.news?.get(0)?.summary}")
         EasyDataStore.putData(Constant.REQUEST_TIMESTAMP,EasyDate.getMillisNextEarlyMorning())
         //App.db.listItemDao().deleteAll()
         //App.db.listItemDao().insertAll(epidemicNews.result.list)

@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import com.permissionx.goodnews.db.bean.ListItem
+import com.permissionx.goodnews.db.bean.NewsItem
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import com.permissionx.goodnews.ui.theme.GoodNewsTheme
 import com.permissionx.goodnews.utils.ToastUtils.showToast
@@ -69,15 +69,15 @@ fun InitData(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.vie
    val dataState = viewModel.result.observeAsState()
 
     dataState.value?.let { result ->
-        result.getOrNull()?.result?.list?.let { MainScreen(list = it) }
+        result.getOrNull()?.result?.news?.let { MainScreen(list = it) } }
 }
     
-    //MainScreen(list = App.db.listItemDao().getAll())
 
-}
+
+
 
 @Composable
-private fun MainScreen(list:List<ListItem>){
+private fun MainScreen(list:List<NewsItem>){
     //Scaffold是最高的可组合项，可为最常见的Material组件，提供槽位。可以确保这些组件能够正常放置并协同工作。
     Scaffold(
         //这里可以设置一些属性，如顶层应用栏，可以插入插槽Text等，形成标题。还有各种图标控件
@@ -111,7 +111,7 @@ private fun MainScreen(list:List<ListItem>){
 }
 
 @Composable
-fun BodyContent(lists: List<ListItem>, modifier: Modifier = Modifier){
+fun BodyContent(lists: List<NewsItem>, modifier: Modifier = Modifier){
     //LazyColumn 等同于 RecyclerView 只会渲染界面上的可见项，且不需要使用scroll修饰符
     LazyColumn(
         //state用于记录当前项的状态，用户处理滚动事件。
@@ -126,9 +126,14 @@ fun BodyContent(lists: List<ListItem>, modifier: Modifier = Modifier){
                     fontSize = 16.sp,
                     modifier = Modifier.padding(0.dp,10.dp)
                 )
-                Text(text = list.digest, fontSize = 12.sp)
+                Text(text = list.summary, fontSize = 12.sp)
                 Row(modifier = Modifier.padding(0.dp,10.dp)) {
-                    Text(text = list.mtime, fontSize = 12.sp)
+                    Text(text = list.infoSource, fontSize = 12.sp)
+                    Text(
+                        text = list.pubDateStr,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(8.dp,0.dp)
+                    )
                 }
             }
             //分界线，设置颜色和透明度，属于子项的属性。

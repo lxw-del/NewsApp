@@ -8,7 +8,6 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.permissionx.goodnews.db.bean.EpidemicNews
-import com.permissionx.goodnews.db.bean.ListItem
 import com.permissionx.goodnews.db.dao.NewsItemDao
 
 
