@@ -95,7 +95,9 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.1.0-alpha01"
     implementation "androidx.datastore:datastore-preferences-core:1.1.0-alpha01"
 
-
+    //swiperefresh 下拉刷新
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
+    
 }
 
 kapt{

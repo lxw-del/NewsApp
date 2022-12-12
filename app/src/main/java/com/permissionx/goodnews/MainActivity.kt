@@ -26,6 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.permissionx.goodnews.db.bean.NewsItem
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import com.permissionx.goodnews.ui.theme.GoodNewsTheme
@@ -66,9 +69,9 @@ fun Greeting(name: String) {
 @Composable
 fun InitData(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
 
-   val dataState = viewModel.result.observeAsState()
+    viewModel.getNews(false)
 
-    dataState.value?.let { result ->
+    viewModel.result.observeAsState().value?.let { result ->
         result.getOrNull()?.result?.news?.let { MainScreen(list = it) } }
 }
     
@@ -111,38 +114,53 @@ private fun MainScreen(list:List<NewsItem>){
 }
 
 @Composable
-fun BodyContent(lists: List<NewsItem>, modifier: Modifier = Modifier){
-    //LazyColumn 等同于 RecyclerView 只会渲染界面上的可见项，且不需要使用scroll修饰符
-    LazyColumn(
-        //state用于记录当前项的状态，用户处理滚动事件。
-        state = rememberLazyListState(),
-        modifier = Modifier.padding(8.dp)
-    ){
-        items(lists){list ->
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = list.title,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(0.dp,10.dp)
-                )
-                Text(text = list.summary, fontSize = 12.sp)
-                Row(modifier = Modifier.padding(0.dp,10.dp)) {
-                    Text(text = list.infoSource, fontSize = 12.sp)
-                    Text(
-                        text = list.pubDateStr,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(8.dp,0.dp)
-                    )
-                }
-            }
-            //分界线，设置颜色和透明度，属于子项的属性。
-            Divider(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                color = colorResource(id = R.color.black).copy(alpha = 0.08f)
+fun BodyContent(lists: List<NewsItem>, modifier: Modifier = Modifier,viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
+    //下拉刷新
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = false),
+        onRefresh = { viewModel.getNews(true) },
+        indicator = { state,trigger ->
+            SwipeRefreshIndicator(
+                state = state,
+                refreshTriggerDistance = trigger,//刷新触发距离
+                scale = true,//刷新View的大小动画
+                backgroundColor = MaterialTheme.colors.primary,
+                shape = MaterialTheme.shapes.small,
             )
-        }
 
+        }
+        ) {
+        //LazyColumn 等同于 RecyclerView 只会渲染界面上的可见项，且不需要使用scroll修饰符
+        LazyColumn(
+            //state用于记录当前项的状态，用户处理滚动事件。
+            state = rememberLazyListState(),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            items(lists) { list ->
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text = list.title,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(0.dp, 10.dp)
+                    )
+                    Text(text = list.summary, fontSize = 12.sp)
+                    Row(modifier = Modifier.padding(0.dp, 10.dp)) {
+                        Text(text = list.infoSource, fontSize = 12.sp)
+                        Text(
+                            text = list.pubDateStr,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(8.dp, 0.dp)
+                        )
+                    }
+                }
+                //分界线，设置颜色和透明度，属于子项的属性。
+                Divider(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    color = colorResource(id = R.color.black).copy(alpha = 0.08f)
+                )
+            }
+        }
     }
 }
 

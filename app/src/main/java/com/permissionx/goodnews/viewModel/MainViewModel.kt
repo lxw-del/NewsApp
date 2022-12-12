@@ -1,5 +1,7 @@
 package com.permissionx.goodnews.viewModel
 
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,5 +11,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(repository:EpidemicNewsRepository):ViewModel(){
 
-    val result = repository.getEpidemicNews()
+    private val isRefresh = MutableLiveData<Boolean>()
+
+    val result = Transformations.switchMap(isRefresh){
+        repository.getEpidemicNews(it)
+    }
+
+    fun getNews(refresh:Boolean){
+        isRefresh.value = refresh
+    }
 }

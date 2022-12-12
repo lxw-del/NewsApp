@@ -23,9 +23,9 @@ class EpidemicNewsRepository @Inject constructor():BaseRepository() {
         lateinit var epidemicNews: EpidemicNews
     }
 
-    fun getEpidemicNews() = fire(Dispatchers.IO){
-       //判断今天是否是第一次请求网络
-        if(EasyDate.timestamp <= EasyDataStore.getData(Constant.REQUEST_TIMESTAMP,1649049670500)){
+    fun getEpidemicNews(isRefresh:Boolean) = fire(Dispatchers.IO){
+       //判断是不是刷新并且今天是否是第一次请求网络
+        if(!isRefresh && EasyDate.timestamp <= EasyDataStore.getData(Constant.REQUEST_TIMESTAMP,1649049670500)){
            //当前时间未超过次日0点，从本地获取数据库
             Log.d(TAG, "getEpidemicNews: 从数据库中获取")
             epidemicNews = getLocalForNews()
