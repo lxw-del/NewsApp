@@ -7,13 +7,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.permissionx.goodnews.db.bean.Desc
 import com.permissionx.goodnews.db.bean.EpidemicNews
+import com.permissionx.goodnews.db.dao.DescDao
 import com.permissionx.goodnews.db.dao.NewsItemDao
 
 
-@Database(entities = [EpidemicNews::class], version = 2, exportSchema = false)
+@Database(entities = [EpidemicNews::class,Desc::class], version = 2, exportSchema = false)
 abstract class AppDatabase:RoomDatabase() {
     abstract fun listItemDao():NewsItemDao
+
+    abstract fun descDao():DescDao
+
 
     companion object{
 

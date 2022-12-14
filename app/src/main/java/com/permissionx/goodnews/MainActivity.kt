@@ -16,7 +16,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -29,9 +31,12 @@ import androidx.lifecycle.ViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.gson.Gson
+import com.permissionx.goodnews.db.bean.Desc
 import com.permissionx.goodnews.db.bean.NewsItem
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import com.permissionx.goodnews.ui.theme.GoodNewsTheme
+import com.permissionx.goodnews.utils.DescItem.descItem
 import com.permissionx.goodnews.utils.ToastUtils.showToast
 import com.permissionx.goodnews.viewModel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,7 +77,7 @@ fun InitData(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.vie
     viewModel.getNews(false)
 
     viewModel.result.observeAsState().value?.let { result ->
-        result.getOrNull()?.result?.news?.let { MainScreen(list = it) } }
+        result.getOrNull()?.result?.let { MainScreen(it) } }
 }
     
 
@@ -80,7 +85,7 @@ fun InitData(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.vie
 
 
 @Composable
-private fun MainScreen(list:List<NewsItem>){
+private fun MainScreen(result: com.permissionx.goodnews.db.bean.Result){
     //Scaffold是最高的可组合项，可为最常见的Material组件，提供槽位。可以确保这些组件能够正常放置并协同工作。
     Scaffold(
         //这里可以设置一些属性，如顶层应用栏，可以插入插槽Text等，形成标题。还有各种图标控件
@@ -109,12 +114,12 @@ private fun MainScreen(list:List<NewsItem>){
         }
     ) {
         //这是主题内容部分，更改的是主体。
-        BodyContent(list,Modifier.padding(it))
+        result.news?.let { it1 -> BodyContent(it1,result.desc,Modifier.padding(it)) }
     }
 }
 
 @Composable
-fun BodyContent(lists: List<NewsItem>, modifier: Modifier = Modifier,viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
+fun BodyContent(lists: List<NewsItem>,desc:Desc, modifier: Modifier = Modifier,viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
     //下拉刷新
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = false),
@@ -136,6 +141,10 @@ fun BodyContent(lists: List<NewsItem>, modifier: Modifier = Modifier,viewModel: 
             state = rememberLazyListState(),
             modifier = Modifier.padding(8.dp)
         ) {
+            Log.d("MainActivity", "desc: ${Gson().toJson(desc)}")
+
+            descItem(desc)
+
             items(lists) { list ->
                 Column(modifier = Modifier.padding(8.dp)) {
                     Text(

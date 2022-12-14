@@ -29,11 +29,12 @@ class EpidemicNewsRepository @Inject constructor():BaseRepository() {
            //当前时间未超过次日0点，从本地获取数据库
             Log.d(TAG, "getEpidemicNews: 从数据库中获取")
             epidemicNews = getLocalForNews()
+
             //Log.d(TAG, "Database data0 is ${App.db.listItemDao().getAll()[0].digest}")
        }else{
             Log.d(TAG, "getEpidemicNews: 从网络中获取")
             epidemicNews = NetworkRequest.getEpidemicNews()
-            Log.d(TAG, "getEpidemicNews: ${epidemicNews.result.news?.get(0)?.summary}")
+            Log.d(TAG, "News: ${epidemicNews.result.desc.curedCount}")
             //保存到本地数据库
             saveNews(epidemicNews)
         }
@@ -49,6 +50,9 @@ class EpidemicNewsRepository @Inject constructor():BaseRepository() {
         //App.db.listItemDao().deleteAll()
         //App.db.listItemDao().insertAll(epidemicNews.result.list)
         App.db.listItemDao().insert(epidemicNews.apply { id = 1 })
+
+        //保存描述
+        App.db.descDao().insert(epidemicNews.result.desc.apply { id = 1 })
     }
 
     //从本地数据库中加载
