@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -40,6 +41,7 @@ import com.permissionx.goodnews.utils.DescItem.descItem
 import com.permissionx.goodnews.utils.ToastUtils.showToast
 import com.permissionx.goodnews.viewModel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.ceil
 import kotlin.math.log
 
 @AndroidEntryPoint
@@ -143,7 +145,8 @@ fun BodyContent(lists: List<NewsItem>,desc:Desc, modifier: Modifier = Modifier,v
         ) {
             Log.d("MainActivity", "desc: ${Gson().toJson(desc)}")
 
-            descItem(desc)
+            //descItem(desc)
+            descItemPlus(desc)
 
             items(lists) { list ->
                 Column(modifier = Modifier.padding(8.dp)) {
@@ -171,6 +174,97 @@ fun BodyContent(lists: List<NewsItem>,desc:Desc, modifier: Modifier = Modifier,v
             }
         }
     }
+}
+
+//将人数信息整合成一个数据类，因为样式有规律性。
+data class DescDataItem(var title:String,var current:Int,var yesterday:Int)
+
+data class GroupItem(val descDataItem:DescDataItem?,val isEmpty:Boolean)
+
+
+/**
+ * descItemPlus函数是网格布局，用于简化添加数据布局的代码
+ * 通过观察发现数据有统一性，所以可以设置数据类去代表这些数据
+ * 通过一个列表去存储这些数据对象，并计算他们的行列。
+ * 通过Items将每一行的数据显示出来
+ *
+ * 这样做就可以在需要添加删除数据的时候只需要更改descList这个列表的数据
+ *
+ * @param desc
+ */
+
+//这就是一个数据源，可以进行添加数据和删减数据
+private fun LazyListScope.descItemPlus(desc: Desc){
+    //构建一个desc 列表
+    val descList = mutableListOf<DescDataItem>().apply {
+        add(DescDataItem("现存确诊人数", desc.currentConfirmedCount, desc.currentConfirmedIncr))
+        add(DescDataItem("累计确诊人数", desc.confirmedCount, desc.confirmedIncr))
+        add(DescDataItem("累计治愈人数", desc.curedCount, desc.curedIncr))
+        add(DescDataItem("累计死亡人数", desc.deadCount, desc.deadIncr))
+        add(DescDataItem("现存无症状人数", desc.seriousCount, desc.seriousIncr))
+    }
+
+    //计算网格行数，并填满网格
+    val gridItems = mutableListOf<List<GroupItem>>()
+    var index = 0
+
+    //设置列为2列
+    val columnNum = 2
+    //计算设置几行，ceil取整，比如2.3 就是 3
+    val rowNum = ceil(descList.size.toFloat() / columnNum).toInt()
+
+    //遍历行列，填充数据
+    for(i in 0 until rowNum){
+        val rowList = mutableListOf<GroupItem>()
+
+        //这里根据列添加数据
+        for (j in 0 until columnNum){
+            if (index.inc() <= descList.size){
+                rowList.add(GroupItem(descList[index++],false))
+            }
+        }
+
+        //如果数据不够，没有填满，则填空占位
+        val itemNum = columnNum - rowList.size
+        for (x in 0 until itemNum){
+            rowList.add(GroupItem(null,true))
+        }
+        //最后将每一行的数据加入到网格列表
+        gridItems.add(rowList)
+    }
+
+    //显示每一个Item
+    items(gridItems){gridItem ->
+        Row {
+            for(grid in gridItem){
+                if (grid.isEmpty){
+                    Box(modifier = Modifier.weight(1f))
+                }else{
+                    Box(modifier = Modifier.weight(1f)){
+                        Card(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                            elevation = 2.dp,//阴影
+                            backgroundColor = Color.White) {
+
+                            val descItemInfo = grid.descDataItem!!
+
+                            Column(modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                Text(text = descItemInfo.title)
+                                Text(text = descItemInfo.current.toString(), fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                                Text(text = "较昨日 ${descItemInfo.yesterday}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 }
 
 @Preview(showBackground = true)
