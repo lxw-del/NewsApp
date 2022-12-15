@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -15,7 +16,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -119,12 +120,12 @@ private fun MainScreen(result: com.permissionx.goodnews.db.bean.Result){
         }
     ) {
         //这是主题内容部分，更改的是主体。
-        result.news?.let { it1 -> BodyContent(it1,result.desc,Modifier.padding(it)) }
+        result.news?.let { it1 -> BodyContent(it1,result.riskarea,result.desc,Modifier.padding(it)) }
     }
 }
 
 @Composable
-fun BodyContent(lists: List<NewsItem>,desc:Desc, modifier: Modifier = Modifier,viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
+fun BodyContent(lists: List<NewsItem>,riskarea:String,desc:Desc,modifier: Modifier = Modifier,viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
     //下拉刷新
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = false),
@@ -148,8 +149,10 @@ fun BodyContent(lists: List<NewsItem>,desc:Desc, modifier: Modifier = Modifier,v
         ) {
             Log.d("MainActivity", "desc: ${Gson().toJson(desc)}")
 
+
             descItem(desc)
-            descItemPlus(desc)
+            //descItemPlus(desc)
+            riskareaItem(riskarea)
 
             items(lists) { list ->
                 Column(modifier = Modifier.padding(8.dp)) {
@@ -271,7 +274,7 @@ private fun LazyListScope.descItemPlus(desc: Desc){
 }
 
 //4个基本数据布局
-fun LazyListScope.descItem(desc: Desc){
+private fun LazyListScope.descItem(desc: Desc){
     item {
         Card(//这里不写height或者width就是表示自适应，根据内容决定。
             modifier = Modifier
@@ -380,6 +383,73 @@ fun LazyListScope.descItem(desc: Desc){
         }
     }
 }
+
+//显示高低风险地区
+@Composable
+private fun LazyListScope.riskareaItem(riskarea: String){
+
+
+    //  记录变量的值，使得下次使用改变量时不进行初始化。
+    //	使用 remember 存储对象的可组合项会创建内部状态，使该可组合项有状态。
+    //	remember 会为函数提供存储空间，将 remember 计算的值储存，当 remember 的键改变的时候会进行重新计算值并储存。
+    var showDialog by remember {
+        mutableStateOf(false)//表明某个变量是有状态的，对变量进行监听，当状态改变时，触发重绘
+    }
+
+    item {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+            elevation = 2.dp,
+            backgroundColor = Color.White
+        ) {
+            Row {
+               Column(//clickable 如果设置在padding之后就会不包含内填充，反之会包含。准则，最后再去设置padding
+                   modifier = Modifier
+                       .weight(1f)
+                       .clickable {
+                           "全国已放开".showToast()
+                           showDialog = true
+                       }
+                       .padding(0.dp, 12.dp),
+                   verticalArrangement = Arrangement.Center,
+                   horizontalAlignment = Alignment.CenterHorizontally
+               ) {
+                   Text(text = "全国风险地区", fontSize = 14.sp)
+                   Text(buildAnnotatedString {
+                       withStyle(style = SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
+                           id = R.color.dark_red
+                       ))){
+                           append("0")
+                       }
+                       withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
+                           append("个")
+                       }
+                   })
+                   Text(text = riskarea, fontSize = 10.sp)
+               }
+            }
+            if(showDialog){
+                AlertDialog(
+                    onDismissRequest = {showDialog = false},
+                    title = {
+                        Text(text = "测试")
+                    },
+                    text = {
+                        Text(text = "弹窗测试")
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {showDialog = false}) {
+                         Text(text = "确定")
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
