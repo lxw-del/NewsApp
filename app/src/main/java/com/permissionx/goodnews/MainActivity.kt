@@ -23,8 +23,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,8 +40,8 @@ import com.permissionx.goodnews.db.bean.Desc
 import com.permissionx.goodnews.db.bean.NewsItem
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import com.permissionx.goodnews.ui.theme.GoodNewsTheme
-import com.permissionx.goodnews.utils.DescItem.descItem
 import com.permissionx.goodnews.utils.ToastUtils.showToast
+import com.permissionx.goodnews.utils.addSymbols
 import com.permissionx.goodnews.viewModel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.ceil
@@ -145,7 +148,7 @@ fun BodyContent(lists: List<NewsItem>,desc:Desc, modifier: Modifier = Modifier,v
         ) {
             Log.d("MainActivity", "desc: ${Gson().toJson(desc)}")
 
-            //descItem(desc)
+            descItem(desc)
             descItemPlus(desc)
 
             items(lists) { list ->
@@ -265,6 +268,117 @@ private fun LazyListScope.descItemPlus(desc: Desc){
 
     }
 
+}
+
+//4个基本数据布局
+fun LazyListScope.descItem(desc: Desc){
+    item {
+        Card(//这里不写height或者width就是表示自适应，根据内容决定。
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            elevation = 2.dp,//阴影
+            backgroundColor = Color.White
+        ) {
+            Column {
+                Row(modifier = Modifier.padding(12.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,//设置垂直居中对齐
+                        horizontalAlignment = Alignment.CenterHorizontally//设置水平居中对齐
+                    ) {
+                        Text(text = "现存确诊人数")
+                        Text(text = desc.currentConfirmedCount.toString(),
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(0.dp,4.dp),
+                            color = colorResource(id = R.color.red)
+                            )
+                        //buildAnnotatedString，它可以对一个Text中的不同内容做不同的样式设置
+                        Text(buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
+                                append("较昨日")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
+                                append(desc.currentConfirmedIncr.addSymbols())
+                            }
+                        })
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "累计确诊人数")
+                        Text(text = desc.confirmedCount.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
+                            id = R.color.dark_red),
+                            modifier = Modifier.padding(0.dp,4.dp)
+                        )
+                        Text(buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
+                                append("较昨日")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
+                                append(desc.confirmedIncr.addSymbols())
+                            }
+                        })
+                    }
+                }
+
+                Row(modifier = Modifier.padding(12.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "累计治愈人数")
+                        Text(text = desc.curedCount.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.green),
+                            modifier = Modifier.padding(0.dp,4.dp)
+                            )
+                        Text(buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
+                                append("较昨日")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
+                                append(desc.curedIncr.addSymbols())
+                            }
+                        })
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "累计死亡人数")
+                        Text(text = desc.deadCount.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.gray_black),
+                            modifier = Modifier.padding(0.dp,4.dp)
+                            )
+                        Text(buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
+                                append("较昨日")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
+                                append(desc.deadIncr.addSymbols())
+                            }
+                        })
+                    }
+                }
+            }
+
+        }
+    }
 }
 
 @Preview(showBackground = true)
