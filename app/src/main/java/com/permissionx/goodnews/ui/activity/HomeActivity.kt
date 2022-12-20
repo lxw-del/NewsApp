@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,7 +20,10 @@ import com.permissionx.goodnews.ui.pages.EpidemicNewsListPage
 import com.permissionx.goodnews.ui.pages.PageConstant.EPIDEMIC_NEWS_LIST_PAGE
 import com.permissionx.goodnews.ui.pages.PageConstant.RISK_ZONE_DETAILS_PAGE
 import com.permissionx.goodnews.ui.pages.RiskZoneDetailsPage
+import com.permissionx.goodnews.viewModel.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,12 +34,13 @@ class HomeActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    val viewModel:MainViewModel = viewModel()
                     //用于控制导航
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = EPIDEMIC_NEWS_LIST_PAGE ){
                         //疫情新闻列表页面
                         composable(EPIDEMIC_NEWS_LIST_PAGE){
-                            EpidemicNewsListPage(navController)
+                            EpidemicNewsListPage(navController,viewModel)
                         }
 
                         //风险区详情页面
