@@ -8,7 +8,7 @@ import retrofit2.http.GET
 interface ApiService {
 
     //获取新闻数据
-    @GET("/ncov/index?key=${Constant.API_KEY}")
+    @GET("/ncov/index?key=${Constant.API_KEY}&date=2022-01-18")
     fun getEpidemicNews(): Call<EpidemicNews>
 
 }

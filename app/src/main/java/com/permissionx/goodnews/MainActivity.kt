@@ -39,6 +39,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.gson.Gson
 import com.permissionx.goodnews.db.bean.Desc
 import com.permissionx.goodnews.db.bean.NewsItem
+import com.permissionx.goodnews.db.bean.Riskarea
 import com.permissionx.goodnews.repository.EpidemicNewsRepository
 import com.permissionx.goodnews.ui.theme.GoodNewsTheme
 import com.permissionx.goodnews.utils.ToastUtils.showToast
@@ -125,7 +126,7 @@ private fun MainScreen(result: com.permissionx.goodnews.db.bean.Result){
 }
 
 @Composable
-fun BodyContent(lists: List<NewsItem>,riskarea:String,desc:Desc,modifier: Modifier = Modifier,viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
+fun BodyContent(lists: List<NewsItem>, riskarea: Riskarea, desc:Desc, modifier: Modifier = Modifier, viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
     //下拉刷新
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = false),
@@ -147,12 +148,13 @@ fun BodyContent(lists: List<NewsItem>,riskarea:String,desc:Desc,modifier: Modifi
             state = rememberLazyListState(),
             modifier = Modifier.padding(8.dp)
         ) {
-            Log.d("MainActivity", "desc: ${Gson().toJson(desc)}")
+           // Log.d("MainActivity", "desc: ${Gson().toJson(desc)}")
 
 
             descItem(desc)
             //descItemPlus(desc)
-            riskareaItem(riskarea)
+            RiskareaItem(riskarea = riskarea)
+
 
             items(lists) { list ->
                 Column(modifier = Modifier.padding(8.dp)) {
@@ -198,6 +200,8 @@ data class GroupItem(val descDataItem:DescDataItem?,val isEmpty:Boolean)
  *
  * @param desc
  */
+
+
 
 //这就是一个数据源，可以进行添加数据和删减数据
 private fun LazyListScope.descItemPlus(desc: Desc){
@@ -385,16 +389,7 @@ private fun LazyListScope.descItem(desc: Desc){
 }
 
 //显示高低风险地区
-@Composable
-private fun LazyListScope.riskareaItem(riskarea: String){
-
-
-    //  记录变量的值，使得下次使用改变量时不进行初始化。
-    //	使用 remember 存储对象的可组合项会创建内部状态，使该可组合项有状态。
-    //	remember 会为函数提供存储空间，将 remember 计算的值储存，当 remember 的键改变的时候会进行重新计算值并储存。
-    var showDialog by remember {
-        mutableStateOf(false)//表明某个变量是有状态的，对变量进行监听，当状态改变时，触发重绘
-    }
+private fun LazyListScope.RiskareaItem(riskarea: Riskarea){
 
     item {
         Card(
@@ -404,49 +399,98 @@ private fun LazyListScope.riskareaItem(riskarea: String){
             elevation = 2.dp,
             backgroundColor = Color.White
         ) {
+            //  记录变量的值，使得下次使用改变量时不进行初始化。
+            //	使用 remember 存储对象的可组合项会创建内部状态，使该可组合项有状态。
+            //	remember 会为函数提供存储空间，将 remember 计算的值储存，当 remember 的键改变的时候会进行重新计算值并储存。
+            val openDialog = remember {
+                mutableStateOf(false)//表明某个变量是有状态的，对变量进行监听，当状态改变时，触发重绘
+            }
+            val dialogTitle = remember {
+                mutableStateOf(String())
+            }
+            val dialogList = remember {
+                mutableStateOf(listOf(String()))
+            }
+            ShowDialog(openDialog,dialogTitle,dialogList)
+            
             Row {
                Column(//clickable 如果设置在padding之后就会不包含内填充，反之会包含。准则，最后再去设置padding
                    modifier = Modifier
                        .weight(1f)
                        .clickable {
-                           "全国已放开".showToast()
-                           showDialog = true
+                           openDialog.value = true
+                           dialogTitle.value = "高风险地区"
+                           dialogList.value = riskarea.high!!
                        }
                        .padding(0.dp, 12.dp),
                    verticalArrangement = Arrangement.Center,
                    horizontalAlignment = Alignment.CenterHorizontally
                ) {
-                   Text(text = "全国风险地区", fontSize = 14.sp)
+                   Text(text = "高风险地区", fontSize = 12.sp)
                    Text(buildAnnotatedString {
                        withStyle(style = SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
-                           id = R.color.dark_red
+                           id = R.color.red
                        ))){
-                           append("0")
+                           append("${riskarea.high?.size}")
                        }
                        withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
                            append("个")
                        }
                    })
-                   Text(text = riskarea, fontSize = 10.sp)
+
+               }
+
+               Column(
+                   modifier = Modifier
+                       .weight(1f)
+                       .clickable {
+                           openDialog.value = true
+                           dialogTitle.value = "中风险地区"
+                           dialogList.value = riskarea.mid!!
+                       }
+                       .padding(0.dp, 12.dp),
+                   verticalArrangement = Arrangement.Center,
+                   horizontalAlignment = Alignment.CenterHorizontally
+               ) {
+                    Text(text = "中风险地区", fontSize = 12.sp)
+                    Text(text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
+                                id = R.color.dark_red
+                            ))
+                        ){
+                            append("${riskarea.mid?.size}")
+                        }
+                        withStyle(
+                            style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        ){
+                            append("个")
+                        }
+                    })
                }
             }
-            if(showDialog){
-                AlertDialog(
-                    onDismissRequest = {showDialog = false},
-                    title = {
-                        Text(text = "测试")
-                    },
-                    text = {
-                        Text(text = "弹窗测试")
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {showDialog = false}) {
-                         Text(text = "确定")
-                        }
-                    }
-                )
-            }
+
         }
+    }
+}
+
+@Composable
+private fun ShowDialog(
+    openDialog:MutableState<Boolean>,
+    dialogTitle:MutableState<String>,
+    dialogList:MutableState<List<String>>
+    ){
+    if (openDialog.value){
+        AlertDialog(
+            onDismissRequest = {openDialog.value = false},
+            title = { Text(text = dialogTitle.value)},
+            text = { Text(text = "${dialogList.value.size}个")},
+            confirmButton = {
+                TextButton(onClick = {openDialog.value = false}) {
+                    Text(text = "确定")
+                }
+            }
+        ) 
     }
 }
 

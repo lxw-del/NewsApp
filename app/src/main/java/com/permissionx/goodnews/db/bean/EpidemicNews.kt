@@ -17,7 +17,7 @@ data class EpidemicNews(
 
 data class Result(val news: List<NewsItem>?,
                   val desc: Desc,
-                  val riskarea: String = "")
+                  val riskarea: Riskarea)
 
 data class NewsItem(val summary: String = "",
                     val sourceUrl: String = "",
@@ -92,3 +92,7 @@ data class GlobalStatistics(
     @ColumnInfo(name = "global_yesterdayConfirmedCountIncr")
     val yesterdayConfirmedCountIncr: Int = 0)
 
+data class Riskarea(
+    val high: List<String>?,
+    val mid: List<String>?
+)

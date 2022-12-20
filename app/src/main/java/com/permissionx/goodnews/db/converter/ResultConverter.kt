@@ -19,4 +19,8 @@ class ResultConverter {
 
     @TypeConverter
     fun resultToString(result: com.permissionx.goodnews.db.bean.Result): String = Gson().toJson(result)
+
+
+
+
 }
