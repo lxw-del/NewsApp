@@ -17,7 +17,7 @@ class MainViewModel @Inject constructor(repository:EpidemicNewsRepository):ViewM
         repository.getEpidemicNews(it)
     }
 
-    fun getNews(refresh:Boolean){
+    fun getNews(refresh:Boolean=false){
         isRefresh.value = refresh
     }
 }

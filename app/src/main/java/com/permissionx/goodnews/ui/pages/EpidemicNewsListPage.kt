@@ -8,15 +8,13 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.material.R
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,18 +30,24 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.gson.Gson
+import com.permissionx.goodnews.R
 import com.permissionx.goodnews.db.bean.Desc
 import com.permissionx.goodnews.db.bean.NewsItem
 import com.permissionx.goodnews.db.bean.Riskarea
+import com.permissionx.goodnews.ui.pages.PageConstant.RISK_ZONE_DETAILS_PAGE
+import com.permissionx.goodnews.ui.pages.PageConstant.WEB_VIEW_PAGE
 import com.permissionx.goodnews.utils.ToastUtils.showToast
 import com.permissionx.goodnews.utils.addSymbols
 import com.permissionx.goodnews.viewModel.MainViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlin.math.ceil
 
 
 @SuppressLint("StaticFieldLeak")
-lateinit var mNavController:NavHostController
-lateinit var mViewModel:MainViewModel
+lateinit var mNavController: NavHostController
+lateinit var mViewModel: MainViewModel
 
 /**
  * 疫情新闻列表页面
@@ -61,7 +65,7 @@ fun EpidemicNewsListPage(navController: NavHostController,viewModel: MainViewMod
     mNavController = navController
     mViewModel = viewModel
 
-    mViewModel.getNews(false)
+    mViewModel.getNews()
 
     mViewModel.result.observeAsState().value?.let { result ->
         result.getOrNull()?.result?.let { MainScreen(it) } }
@@ -96,7 +100,18 @@ private fun MainScreen(result: com.permissionx.goodnews.db.bean.Result){
                 },
                 elevation = 4.dp
                 )
-        }
+        },
+        //compose 悬浮按钮 floatingActionButton
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { "主页面".showToast() },
+                contentColor = Color.White,
+                content = {
+                  Icon(imageVector = Icons.Filled.Home, contentDescription = "")
+                }
+                )
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) {
         //这是主题内容部分，更改的是主体。
         result.news?.let { it1 -> BodyContent(it1,result.riskarea,result.desc, Modifier.padding(it)) }
@@ -135,7 +150,15 @@ fun BodyContent(lists: List<NewsItem>, riskarea: Riskarea, desc: Desc, modifier:
 
 
             items(lists) { list ->
-                Column(modifier = Modifier.padding(8.dp)) {
+                Column(modifier = Modifier
+                    .clickable {
+                        //Url作为参数传递，需要转码成UTF-8
+                        val encodedUrl =
+                            URLEncoder.encode(list.sourceUrl, StandardCharsets.UTF_8.toString())
+                        mNavController.navigate("${WEB_VIEW_PAGE}/${list.title}/${encodedUrl}")
+                    }
+                    .padding(8.dp)
+                ) {
                     Text(
                         text = list.title,
                         fontWeight = FontWeight.ExtraBold,
@@ -155,7 +178,7 @@ fun BodyContent(lists: List<NewsItem>, riskarea: Riskarea, desc: Desc, modifier:
                 //分界线，设置颜色和透明度，属于子项的属性。
                 Divider(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    color = colorResource(id = com.permissionx.goodnews.R.color.black).copy(alpha = 0.08f)
+                    color = colorResource(id = R.color.black).copy(alpha = 0.08f)
                 )
             }
         }
@@ -279,11 +302,11 @@ private fun LazyListScope.descItem(desc: Desc){
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(0.dp,4.dp),
-                            color = colorResource(id = com.permissionx.goodnews.R.color.red)
+                            color = colorResource(id = R.color.red)
                         )
                         //buildAnnotatedString，它可以对一个Text中的不同内容做不同的样式设置
                         Text(buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = com.permissionx.goodnews.R.color.gray))){
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
                                 append("较昨日")
                             }
                             withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
@@ -301,11 +324,11 @@ private fun LazyListScope.descItem(desc: Desc){
                     ) {
                         Text(text = "累计确诊人数")
                         Text(text = desc.confirmedCount.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
-                            id = com.permissionx.goodnews.R.color.dark_red),
+                            id = R.color.dark_red),
                             modifier = Modifier.padding(0.dp,4.dp)
                         )
                         Text(buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = com.permissionx.goodnews.R.color.gray))){
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
                                 append("较昨日")
                             }
                             withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
@@ -325,11 +348,11 @@ private fun LazyListScope.descItem(desc: Desc){
                     ) {
                         Text(text = "累计治愈人数")
                         Text(text = desc.curedCount.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold,
-                            color = colorResource(id = com.permissionx.goodnews.R.color.green),
+                            color = colorResource(id = R.color.green),
                             modifier = Modifier.padding(0.dp,4.dp)
                         )
                         Text(buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = com.permissionx.goodnews.R.color.gray))){
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
                                 append("较昨日")
                             }
                             withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
@@ -347,11 +370,11 @@ private fun LazyListScope.descItem(desc: Desc){
                     ) {
                         Text(text = "累计死亡人数")
                         Text(text = desc.deadCount.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold,
-                            color = colorResource(id = com.permissionx.goodnews.R.color.gray_black),
+                            color = colorResource(id = R.color.gray_black),
                             modifier = Modifier.padding(0.dp,4.dp)
                         )
                         Text(buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = com.permissionx.goodnews.R.color.gray))){
+                            withStyle(style = SpanStyle(fontSize = 12.sp, color = colorResource(id = R.color.gray))){
                                 append("较昨日")
                             }
                             withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)){
@@ -399,7 +422,13 @@ private fun LazyListScope.RiskareaItem(riskarea: Riskarea){
                             /*openDialog.value = true
                             dialogTitle.value = "高风险地区"
                             dialogList.value = riskarea.high!!*/
-                            mNavController.navigate(PageConstant.RISK_ZONE_DETAILS_PAGE)
+                            mNavController.navigate(
+                                "$RISK_ZONE_DETAILS_PAGE/高风险区/${
+                                    Gson().toJson(
+                                        riskarea.high
+                                    )
+                                }"
+                            )
                         }
                         .padding(0.dp, 12.dp),
                     verticalArrangement = Arrangement.Center,
@@ -408,7 +437,7 @@ private fun LazyListScope.RiskareaItem(riskarea: Riskarea){
                     Text(text = "高风险地区", fontSize = 12.sp)
                     Text(buildAnnotatedString {
                         withStyle(style = SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
-                            id = com.permissionx.goodnews.R.color.red
+                            id = R.color.red
                         )
                         )
                         ){
@@ -428,7 +457,13 @@ private fun LazyListScope.RiskareaItem(riskarea: Riskarea){
                             /*openDialog.value = true
                             dialogTitle.value = "中风险地区"
                             dialogList.value = riskarea.mid!!*/
-                            mNavController.navigate(PageConstant.RISK_ZONE_DETAILS_PAGE)
+                            mNavController.navigate(
+                                "$RISK_ZONE_DETAILS_PAGE/中风险区/${
+                                    Gson().toJson(
+                                        riskarea.mid
+                                    )
+                                }"
+                            )
                         }
                         .padding(0.dp, 12.dp),
                     verticalArrangement = Arrangement.Center,
@@ -438,7 +473,7 @@ private fun LazyListScope.RiskareaItem(riskarea: Riskarea){
                     Text(text = buildAnnotatedString {
                         withStyle(
                             style = SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colorResource(
-                                id = com.permissionx.goodnews.R.color.dark_red
+                                id = R.color.dark_red
                             )
                             )
                         ){
