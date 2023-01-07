@@ -25,10 +25,11 @@ import com.permissionx.goodnews.R
 import com.permissionx.goodnews.ui.BottomBarView
 import com.permissionx.goodnews.ui.pages.PageConstant.COLLECTION_ITEM
 import com.permissionx.goodnews.ui.pages.PageConstant.HOME_ITEM
+import com.permissionx.goodnews.viewModel.HomeViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun HomePage(){
+fun HomePage(mNavController: NavHostController,homeViewModel: HomeViewModel){
     val navController = rememberAnimatedNavController()
     Scaffold(
         topBar = {
@@ -79,7 +80,7 @@ fun HomePage(){
             }
         ){
             composable(HOME_ITEM){
-                HomeItem()
+                HomeItem(mNavController,homeViewModel)
             }
             composable(COLLECTION_ITEM){
                 CollectionItem()

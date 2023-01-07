@@ -107,6 +107,8 @@ dependencies {
     //图标库
     implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
 
+    //Coil图片加载库
+    implementation 'io.coil-kt:coil-compose:2.0.0-rc03'
 }
 
 kapt{

@@ -11,8 +11,11 @@ object NetworkRequest {
 
     private val service = ServiceCreator.create(ApiService::class.java)
 
-    //通过await 函数将getNews 函数也声明成挂起函数，使用协程
+    //通过await 函数将getEpidemicNews函数也声明成挂起函数，使用协程
     suspend fun getEpidemicNews() = service.getEpidemicNews().await()
+
+    //声明社会新闻的数据获取函数
+    suspend fun getSocialNews() = service.getSocialNews().await()
 
     //Retrofit网络返回处理
     private suspend fun<T> Call<T>.await(): T = suspendCoroutine {

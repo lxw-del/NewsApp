@@ -33,6 +33,7 @@ import com.permissionx.goodnews.ui.pages.PageConstant.RISK_ZONE_DETAILS_PAGE
 import com.permissionx.goodnews.ui.pages.PageConstant.WEB_VIEW_PAGE
 import com.permissionx.goodnews.ui.pages.RiskZoneDetailsPage
 import com.permissionx.goodnews.ui.pages.WebViewPage
+import com.permissionx.goodnews.viewModel.HomeViewModel
 import com.permissionx.goodnews.viewModel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -60,6 +61,7 @@ class HomeActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val mviewModel:MainViewModel = viewModel()
+                    val homeViewModel:HomeViewModel = viewModel()
                     //用于控制导航
                     val navController = rememberAnimatedNavController()
                     AnimatedNavHost(
@@ -108,7 +110,7 @@ class HomeActivity : ComponentActivity() {
                         ){
                         //主页面
                         composable(HOME_PAGE){
-                            HomePage()
+                            HomePage(navController,homeViewModel)
                         }
                         
                         //疫情新闻列表页面

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -27,7 +28,7 @@ fun WebViewPage(navController: NavHostController,title:String,url:String){
                     Text(
                         text = title,
                         modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colors.onSecondary,
+                        color = Color.White,
                         overflow = TextOverflow.Ellipsis,//超出省略
                         maxLines = 1
                     )
