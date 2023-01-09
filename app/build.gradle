@@ -109,6 +109,12 @@ dependencies {
 
     //Coil图片加载库
     implementation 'io.coil-kt:coil-compose:2.0.0-rc03'
+
+    //viewpage
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    //viewpage指示器
+    implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
+
 }
 
 kapt{
