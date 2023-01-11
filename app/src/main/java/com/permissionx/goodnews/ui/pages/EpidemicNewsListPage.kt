@@ -104,7 +104,7 @@ private fun MainScreen(result: com.permissionx.goodnews.db.bean.Result){
         //compose 悬浮按钮 floatingActionButton
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { "主页面".showToast() },
+                onClick = { mNavController.popBackStack() },
                 contentColor = Color.White,
                 content = {
                   Icon(imageVector = Icons.Filled.Home, contentDescription = "")

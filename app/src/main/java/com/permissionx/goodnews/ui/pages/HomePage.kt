@@ -6,11 +6,12 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Sick
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -25,14 +26,22 @@ import com.permissionx.goodnews.R
 import com.permissionx.goodnews.ui.BottomBarView
 import com.permissionx.goodnews.ui.pages.PageConstant.COLLECTION_ITEM
 import com.permissionx.goodnews.ui.pages.PageConstant.HOME_ITEM
+import com.permissionx.goodnews.utils.ToastUtils.showToast
 import com.permissionx.goodnews.viewModel.HomeViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomePage(mNavController: NavHostController,homeViewModel: HomeViewModel){
     val navController = rememberAnimatedNavController()
+
+    //Scaffold中要打开抽屉布局，需要使用Scaffold中的drawerState，需要通过协程或挂起函数更改
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
+            val drawerState = scaffoldState.drawerState
             TopAppBar(
                 title = {
                     Text(
@@ -43,10 +52,25 @@ fun HomePage(mNavController: NavHostController,homeViewModel: HomeViewModel){
                         maxLines = 1,
                         textAlign = TextAlign.Center
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
+                        }
+                    }) {
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {mNavController.navigate(PageConstant.EPIDEMIC_NEWS_LIST_PAGE)}) {
+                        Icon(imageVector = Icons.Default.Sick, contentDescription = "疫情")
+                    }
                 }
             )
         },
         modifier = Modifier.fillMaxSize(),
+        drawerContent = { DrawerView()},//抽屉的内容，需要将抽屉页面在这里调用
         bottomBar = {
             BottomBarView(navController)
         }

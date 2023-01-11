@@ -22,4 +22,49 @@ class HomeRepository @Inject constructor():BaseRepository(){
         ))
 
     }
+
+    /**
+     * 获取军事新闻
+     */
+
+    fun getMilitaryNews() = fire(Dispatchers.IO){
+        val news = NetworkRequest.getMilitaryNews()
+        if (news.code == Constant.CODE) Result.success(news)
+        else Result.failure(java.lang.RuntimeException("get news response code is ${news.code} msg is" +
+                news.msg
+        ))
+    }
+
+    /**
+     * 获取科技新闻
+     */
+    fun getTechnologyNews() = fire(Dispatchers.IO){
+        val news = NetworkRequest.getTechnologyNews()
+        if (news.code == Constant.CODE) Result.success(news)
+        else Result.failure(java.lang.RuntimeException("get news response code is ${news.code} msg is" +
+                news.msg
+        ))
+    }
+
+    /**
+     * 获取财经新闻
+     */
+    fun getFinanceNews() = fire(Dispatchers.IO){
+        val news = NetworkRequest.getFianceNews()
+        if (news.code == Constant.CODE) Result.success(news)
+        else Result.failure(java.lang.RuntimeException("get news response code is ${news.code} msg is" +
+                news.msg
+        ))
+    }
+
+    /**
+     * 获取娱乐新闻
+     */
+    fun getAmusementNews() = fire(Dispatchers.IO){
+        val news = NetworkRequest.getAmusementNews()
+        if (news.code == Constant.CODE) Result.success(news)
+        else Result.failure(java.lang.RuntimeException("get news response code is ${news.code} msg is" +
+                news.msg
+        ))
+    }
 }

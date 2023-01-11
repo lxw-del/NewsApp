@@ -16,12 +16,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -68,13 +71,19 @@ fun ShowNewsList(mNavController: NavHostController, newslist: List<NewslistItem>
                 }
                 .padding(8.dp)
             ) {
-                AsyncImage(
-                    model = new.picUrl,
+                AsyncImage(//加载失败则加载error的图片
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(new.picUrl)
+                        .error(R.drawable.lucy)
+                        .crossfade(true)//淡入淡出动画，切换动画比较轻
+                        .build()
+                    ,
                     contentDescription = null,
                     modifier = Modifier
                         .width(120.dp)
                         .height(80.dp),
-                    contentScale = ContentScale.FillBounds//非均匀缩放填满目标边界
+                    contentScale = ContentScale.FillBounds,//非均匀缩放填满目标边界
+                    placeholder = painterResource(id = R.drawable.lucy)//预览图
                     )
                 Column(
                     modifier = Modifier
@@ -114,7 +123,9 @@ fun ShowNewsList(mNavController: NavHostController, newslist: List<NewslistItem>
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun TabViewPager(mNavController: NavHostController,viewModel: HomeViewModel){
-    Column(modifier = Modifier.fillMaxSize().padding(0.dp,0.dp,0.dp,50.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(0.dp, 0.dp, 0.dp, 50.dp)) {
         val pages by mutableStateOf(
             listOf("社会","军事","科技","财经","娱乐")
         )
@@ -159,11 +170,22 @@ private fun TabViewPager(mNavController: NavHostController,viewModel: HomeViewMo
             modifier = Modifier.padding(top = 4.dp),//分页tab与内容的间隔
             itemSpacing = 2.dp //内容中每个一级组件之间的水平间隔
         ) { page ->//以下的内容是页面内容
-            val dataState = viewModel.result.observeAsState()
             when(page){
-                0 -> dataState.value?.let {
+                0 -> viewModel.result.observeAsState().value?.let {
                     it.getOrNull()!!.result.newslist?.let { it1 -> ShowNewsList(mNavController = mNavController, newslist = it1) }
             }
+                1 -> viewModel.resultMilitary.observeAsState().value?.let {
+                    it.getOrNull()!!.result.newslist?.let { it1 -> ShowNewsList(mNavController = mNavController, newslist = it1) }
+                }
+                2 -> viewModel.resultTechnology.observeAsState().value?.let {
+                    it.getOrNull()!!.result.newslist?.let { it1 -> ShowNewsList(mNavController = mNavController, newslist = it1) }
+                }
+                3 -> viewModel.resultFinance.observeAsState().value?.let {
+                    it.getOrNull()!!.result.newslist?.let { it1 -> ShowNewsList(mNavController = mNavController, newslist = it1) }
+                }
+                4 -> viewModel.resultAmusement.observeAsState().value?.let {
+                    it.getOrNull()!!.result.newslist?.let { it1 -> ShowNewsList(mNavController = mNavController, newslist = it1) }
+                }
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
                         Text(text = "page :$page",

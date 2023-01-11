@@ -15,4 +15,20 @@ interface ApiService {
     //获取社会新闻信息
     @GET("/social/index?key=${Constant.API_KEY}")
     fun getSocialNews(): Call<News>
+
+    //获取军事新闻信息
+    @GET("/military/index?key=${Constant.API_KEY}")
+    fun getMilitaryNews(): Call<News>
+
+    //获取科技新闻信息
+    @GET("/keji/index?key=${Constant.API_KEY}")
+    fun getTechnologyNews(): Call<News>
+
+    //获取财经新闻
+    @GET("/caijing/index?key=${Constant.API_KEY}")
+    fun getFinanceNews(): Call<News>
+
+    //获取娱乐新闻
+    @GET("/huabian/index?key=${Constant.API_KEY}")
+    fun getAmusementNews(): Call<News>
 }
