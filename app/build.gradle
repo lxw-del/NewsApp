@@ -115,6 +115,9 @@ dependencies {
     //viewpage指示器
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
 
+    //权限库
+    implementation "com.google.accompanist:accompanist-permissions:0.18.0"
+
 }
 
 kapt{
